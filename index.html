@@ -102,6 +102,12 @@
     <div class="sub" id="kodeMsg" style="margin:8px 0 12px">2 huruf + 6 angka. Kode ada di halaman unduhan / email pembelianmu.</div>
     <button class="btn" onclick="aktivasi()">Aktifkan</button>
   </div>
+  <details class="adv"><summary>💾 Ganti HP? Pulihkan dari cadangan ▾</summary>
+    <div class="sub" style="margin:4px 0 8px">Tempel pesan cadangan yang pernah kamu kirim ke WhatsApp.</div>
+    <textarea id="restoreTxt0" rows="3" style="width:100%;font:inherit;font-size:13px;border:2px solid var(--acc);border-radius:12px;padding:10px;background:var(--inp)" placeholder="Tempel di sini"></textarea>
+    <button class="btn2" style="margin:8px 0 12px" onclick="pulihkan('restoreTxt0','restoreMsg0')">Pulihkan</button>
+    <div class="sub" id="restoreMsg0" style="margin-bottom:10px"></div>
+  </details>
   <p class="tiny">Lisensi pribadi 1 pembeli · Update gratis selamanya</p>
 </section>
 
@@ -195,6 +201,17 @@
 
   <button class="btn" onclick="simpanAtur()">Simpan & lanjut ke GAJIAN →</button>
   <p class="tiny">⚖️ Alat bantu anggaran pribadi, bukan nasihat keuangan, investasi, pajak, atau hukum. Angka contoh hanya ilustrasi. Keputusan keuangan sepenuhnya tanggung jawab pengguna.</p>
+  <div class="card" id="backupCard">
+    <div class="lbl">💾 Cadangan data</div>
+    <div class="sub" style="margin-bottom:10px">Datamu cuma ada di HP ini. Simpan cadangan ke WhatsApp-mu sendiri (chat ke diri sendiri), terutama sebelum ganti HP atau bersihkan Chrome.</div>
+    <a class="btn" id="waBackup" href="#" target="_blank" rel="noopener" onclick="return kirimCadangan(this)" style="display:block;text-align:center;text-decoration:none;border-radius:14px;padding:14px;font-weight:800">📤 Kirim cadangan ke WhatsApp</a>
+    <button class="btn3" style="margin-top:8px" onclick="salinCadangan(this)">📋 Salin kode cadangan</button>
+    <details style="margin-top:10px"><summary class="sub" style="cursor:pointer">Pulihkan dari cadangan ▾</summary>
+      <textarea id="restoreTxt" rows="3" style="width:100%;margin-top:8px;font:inherit;font-size:13px;border:2px solid var(--acc);border-radius:12px;padding:10px;background:var(--inp)" placeholder="Tempel pesan cadangan di sini"></textarea>
+      <button class="btn2" style="margin-top:8px" onclick="pulihkan('restoreTxt','restoreMsg')">Pulihkan</button>
+      <div class="sub" id="restoreMsg" style="margin-top:6px"></div>
+    </details>
+  </div>
   <button class="ghost" onclick="go('mulai')">📲 Cara pasang di layar utama</button>
   <button class="btn3" onclick="resetAll()" style="margin-bottom:16px">Hapus semua data di HP ini</button>
 </section>
@@ -234,8 +251,15 @@
       <div class="lbl">Jaga-jaga</div>
       <div class="row" style="border:0;padding-top:0"><div class="n" id="jagaTxt"></div><div class="v" id="jagaPct"></div></div>
       <div class="bar acc"><i id="bJaga"></i></div>
-      <div class="sub" style="margin-top:8px">Kalau sudah tercapai, bagian jaga-jaga otomatis pindah ke tabungan.</div>
+      <div class="sub" style="margin-top:8px">Bertambah otomatis tiap gajian. Kalau sudah tercapai, bagiannya pindah ke tabungan.</div>
+      <button class="ghost" id="pakaiBtn" onclick="$('pakaiBox').style.display='block';this.style.display='none'">🆘 Aku pakai uang jaga-jaga</button>
+      <div id="pakaiBox" style="display:none;margin-top:8px">
+        <div class="sub" style="margin-bottom:6px">Darurat apa pun nggak apa-apa. Catat berapa yang dipakai biar angkanya jujur.</div>
+        <input type="text" id="pakaiAmt" class="rp sm" inputmode="numeric" placeholder="Rp">
+        <button class="btn2" style="margin-top:8px" onclick="pakaiJaga()">Catat</button>
+      </div>
     </div>
+    <button class="ghost" onclick="go('atur');setTimeout(()=>{const b=$('backupCard');if(b&&b.scrollIntoView)b.scrollIntoView()},60)">💾 Simpan cadangan data</button>
 
     <div class="row" style="padding:4px 2px 14px"><div class="sub" id="periodeTxt"></div><button class="ghost" style="width:auto" id="ubahBtn" onclick="openGajian()">ubah gaji</button></div>
   </div>
@@ -439,20 +463,23 @@ function calc(){
     const targetJaga=S.jaga>=500000?(W()?Math.round(N(S.gajiTetap)*52/12):N(S.gajiTetap)):500000;
     return {awal:true,gaji:sisa,bonus:0,start,next,days,wajib:unpaid,wajibBln:unpaid,tBln:0,rest:sisa-unpaid,cel:lebih,tab:lebih,jaga:0,hidup,daily,normal,raw,lebih,targetJaga,jagaFull:false};
   }
-  return calcReg(N(P.gaji),N(P.bonus),new Date(P.start));
+  return calcReg(N(P.gaji),N(P.bonus),new Date(P.start),P.jagaBase);
 }
-function calcReg(gaji,bonus,start){
+function calcReg(gaji,bonus,start,jb){
   if(!(gaji>0)) return null;
-  const next=nextPayday(start);
+  if(jb===undefined) jb=S.jaga;
+  let next=nextPayday(start);
+  // gaji masuk lebih awal (mis. maju karena libur): periode jangan jadi 1-2 hari
+  if(Math.round((next-start)/864e5)<(W()?4:15)) next=nextPayday(next);
   const days=Math.max(1,Math.round((next-start)/864e5));
   const wajibBln=wajibPer(), tBln=tahunPer(), wajib=wajibBln+tBln;
   const rest=gaji-wajib;
   let pct=S.pct; if(gaji>0 && rest>0 && rest/gaji<0.4) pct=Math.min(pct,0.05);
   const gajiBln=W()?Math.round(gaji*52/12):gaji;
-  const targetJaga=S.jaga>=500000?gajiBln:500000;
-  const jagaFull=S.jaga>=targetJaga;
+  const targetJaga=jb>=500000?gajiBln:500000;
+  const jagaFull=jb>=targetJaga;
   let tab=rest<=0?0:Math.round(gaji*(pct+(jagaFull?0.03:0))/1000)*1000;
-  let jaga=(rest<=0||jagaFull)?0:Math.min(W()?25000:100000,Math.max(0,targetJaga-S.jaga));
+  let jaga=(rest<=0||jagaFull)?0:Math.min(W()?25000:100000,Math.max(0,targetJaga-jb));
   let cel=Math.min(Math.max(0,rest),tab+jaga);
   if(cel<tab+jaga){ jaga=Math.min(jaga,cel); tab=cel-jaga; }
   const bonusCel=Math.round(bonus*0.5/1000)*1000;
@@ -479,6 +506,24 @@ function openAwal(){
   $('ovA').classList.add('on'); setTimeout(()=>$('sisaUang').focus(),50);
 }
 function closeA(){$('ovA').classList.remove('on')}
+function cadanganTeks(){
+  const o={};for(const k in S){if(k[0]!=='_')o[k]=S[k];}
+  const b=btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+  const t=new Date();return `Cadangan Anti Tanggal Tua (${t.getDate()} ${BLN[t.getMonth()]} ${t.getFullYear()}). Simpan pesan ini, jangan dihapus.\nATT1:${b}`;
+}
+function kirimCadangan(a){try{a.href='https://wa.me/?text='+encodeURIComponent(cadanganTeks());S.lastBackup=iso(new Date());save();}catch(e){return false}return true;}
+function salinCadangan(b){const t=cadanganTeks();try{navigator.clipboard.writeText(t).then(()=>{b.textContent='✓ Tersalin. Tempel & kirim ke WA-mu sendiri.';S.lastBackup=iso(new Date());save();},()=>{b.textContent='Gagal menyalin, pakai tombol WhatsApp ya.'})}catch(e){b.textContent='Gagal menyalin, pakai tombol WhatsApp ya.'}}
+function pulihkan(tid,mid){
+  const m=$(mid),raw=($(tid).value||'').match(/ATT1:([A-Za-z0-9+\/=]+)/);
+  if(!raw){m.innerHTML='<b style="color:#991B1B">Kode cadangan nggak ketemu. Tempel seluruh pesannya ya.</b>';return}
+  try{const o=JSON.parse(decodeURIComponent(escape(atob(raw[1]))));
+    if(typeof o!=='object'||!o.wajib) throw 0;
+    if(S.setup && !S._confirmRestore){S._confirmRestore=true;m.innerHTML='<b style="color:#92400E">Data di HP ini akan diganti. Tekan Pulihkan sekali lagi untuk lanjut.</b>';setTimeout(()=>S._confirmRestore=false,6000);return}
+    S=o;S.aktif=true;S.welcomed=true;save();m.innerHTML='<b style="color:#065F46">✓ Berhasil dipulihkan!</b>';setTimeout(()=>{location.hash='gajian';show('gajian')},600);
+  }catch(e){m.innerHTML='<b style="color:#991B1B">Kode cadangan rusak/terpotong. Coba tempel ulang seluruh pesannya.</b>'}
+}
+function pakaiJaga(){const a=N($('pakaiAmt').value);if(a<=0){$('pakaiAmt').focus();return}
+  S.jaga=Math.max(0,S.jaga-a);save();$('pakaiAmt').value='';$('pakaiBox').style.display='none';$('pakaiBtn').style.display='block';renderGajian();}
 function simpanAwal(){
   const sisa=N($('sisaUang').value); if(sisa<=0){$('sisaUang').focus();return}
   let unpaid=0; document.querySelectorAll('#unpaidBox input:checked').forEach(c=>unpaid+=N(c.dataset.amt));
@@ -494,7 +539,10 @@ function simpanGajian(){
   const baru=!S.periode || S.periode.start!==iso(d);
   if(S._streakAns===true) S.streak=(S.streak||0)+1; else if(S._streakAns===false) S.streak=0;
   if(baru){S.cek=[];S.beli=[];}
-  S.periode={gaji:g,bonus:N($('bonus').value),start:iso(d)};
+  const old=(!baru&&S.periode&&!S.periode.awal)?calc():null;
+  const jagaBase=(!baru&&S.periode&&S.periode.jagaBase!==undefined)?S.periode.jagaBase:S.jaga;
+  S.periode={gaji:g,bonus:N($('bonus').value),start:iso(d),jagaBase};
+  const C=calc(); if(C) S.jaga=Math.max(0,S.jaga+C.jaga-(old?old.jaga:0));
   save(); closeG(); renderGajian(); window.scrollTo(0,0);
 }
 function renderGajian(){

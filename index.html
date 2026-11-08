@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#0F3D3E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Anti Tanggal Tua</title>
+<style>
+  :root{--dark:#0F3D3E;--teal:#0F766E;--acc:#F59E0B;--bg:#F2F4EF;--card:#fff;--ink:#1F2937;--mut:#6B7280;--inp:#FFF7D6;--good:#D1FAE5;--goodi:#065F46;--warn:#FEF3C7;--warni:#92400E;--bad:#FEE2E2;--badi:#991B1B;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;font-size:16px}
+  body{padding-bottom:84px}
+  header{background:var(--dark);color:#fff;padding:18px 18px 14px}
+  header h1{margin:0;font-size:20px;letter-spacing:.5px}
+  header p{margin:4px 0 0;font-size:12px;color:#CDE7E2}
+  main{padding:14px 14px 0;max-width:520px;margin:0 auto}
+  .view{display:none}.view.on{display:block}
+  .card{background:var(--card);border-radius:16px;padding:14px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .lbl{font-size:11px;font-weight:700;letter-spacing:.6px;color:var(--dark);text-transform:uppercase;margin:4px 0 8px}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #EEF0EC}
+  .row:last-child{border-bottom:0}
+  .row .n{font-size:15px}.row .v{font-weight:700;white-space:nowrap}
+  .sub{font-size:12px;color:var(--mut);margin-top:2px}
+  input[type=number],input[type=text],input[type=date],input.rp,select{width:100%;font:inherit;font-size:18px;font-weight:700;color:#1D4ED8;background:var(--inp);border:2px solid var(--acc);border-radius:12px;padding:12px 14px;outline:none}
+  input.sm{font-size:15px;padding:9px 12px}
+  .in2{display:grid;grid-template-columns:1fr 130px;gap:8px;margin-bottom:8px}
+  .hero{background:var(--dark);color:#fff;border-radius:18px;padding:18px 16px;text-align:center;margin-bottom:12px}
+  .hero .t{font-size:11px;letter-spacing:1px;color:#F7D58A;font-weight:700}
+  .hero .big{font-size:44px;font-weight:800;margin:6px 0 2px;letter-spacing:-1px}
+  .hero .d{font-size:12px;color:#CDE7E2}
+  .hero .till{font-size:11px;color:#9CC7BF;margin-top:6px}
+  .status{border-radius:12px;padding:12px 14px;font-weight:700;font-size:14px;text-align:center;margin-bottom:12px;line-height:1.35}
+  .good{background:var(--good);color:var(--goodi)}.warn{background:var(--warn);color:var(--warni)}.bad{background:var(--bad);color:var(--badi)}.grey{background:#E5E7EB;color:#374151}
+  .pocket{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #EEF0EC}
+  .pocket:last-child{border-bottom:0}
+  .pocket .ic{font-size:26px;width:34px;text-align:center}
+  .pocket .m{flex:1}.pocket .m b{font-size:15px}.pocket .m .sub{margin-top:1px}
+  .pocket .amt{font-weight:800;font-size:17px;white-space:nowrap}
+  .bar{height:6px;background:#E5E7EB;border-radius:4px;overflow:hidden;margin-top:6px}
+  .bar i{display:block;height:100%;background:var(--teal)}
+  .bar.acc i{background:var(--acc)}
+  button{font:inherit;border:0;border-radius:14px;padding:14px;font-weight:800;font-size:16px;width:100%;cursor:pointer}
+  .btn{background:var(--acc);color:#1F2937}
+  .btn2{background:var(--teal);color:#fff}
+  .btn3{background:#E5E7EB;color:#374151;font-weight:700;font-size:14px;padding:10px}
+  .ghost{background:transparent;color:var(--teal);font-size:14px;padding:8px}
+  .tiny{font-size:11px;color:var(--mut);text-align:center;margin:8px 0 14px;line-height:1.4}
+  nav{position:fixed;left:0;right:0;bottom:0;background:#fff;border-top:1px solid #E5E7EB;display:flex;justify-content:space-around;padding:6px 0 max(8px,env(safe-area-inset-bottom))}
+  nav a{flex:1;text-align:center;text-decoration:none;color:var(--mut);font-size:10px;font-weight:700;padding:6px 0}
+  nav a span{display:block;font-size:22px;margin-bottom:2px}
+  nav a.on{color:var(--dark)}
+  .chip{display:inline-block;background:var(--good);color:var(--goodi);font-size:11px;font-weight:700;border-radius:20px;padding:3px 9px}
+  .leak{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #EEF0EC}
+  .leak:last-child{border-bottom:0}
+  .leak input[type=checkbox]{width:22px;height:22px;accent-color:var(--teal);flex-shrink:0}
+  .leak .m{flex:1;font-size:14px}
+  .leak input.amt{width:104px;font-size:14px;font-weight:700;padding:7px 9px}
+  .leak.on .m{color:var(--badi);font-weight:700}
+  .addrow{display:grid;grid-template-columns:1fr 120px 36px;gap:6px;align-items:center;margin-bottom:6px}
+  .del{background:#FEE2E2;color:#991B1B;border-radius:10px;padding:8px 0;font-size:16px;width:36px}
+  .center{text-align:center}
+  .muted{color:var(--mut)}
+  .seg{display:flex;gap:6px}
+  .seg button{background:#E5E7EB;color:#374151;font-size:14px;padding:10px 0}
+  .seg button.on{background:var(--teal);color:#fff}
+  .hist{font-size:13px;padding:8px 0;border-bottom:1px solid #EEF0EC;display:flex;justify-content:space-between}
+  .ov{position:fixed;inset:0;background:rgba(15,61,62,.6);display:none;align-items:flex-end;z-index:9}
+  .ov.on{display:flex}
+  .sheet{background:#fff;border-radius:20px 20px 0 0;padding:20px 18px 28px;width:100%;max-width:520px;margin:0 auto}
+  .sheet h3{margin:0 0 8px;font-size:18px}
+  .rule{background:var(--warn);color:var(--warni);border-radius:12px;padding:10px 12px;font-size:13px;font-weight:700;margin-bottom:12px;line-height:1.4}
+  .code{letter-spacing:3px;text-align:center;text-transform:uppercase}
+  details.adv{background:var(--card);border-radius:16px;padding:4px 14px;margin-bottom:12px}
+  details.adv summary{font-weight:700;color:var(--teal);padding:12px 0;cursor:pointer;list-style:none}
+  details.adv summary::-webkit-details-marker{display:none}
+  details.adv .card{box-shadow:none;padding:6px 0;margin:0}
+  .step{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #EEF0EC}
+  .step:last-child{border-bottom:0}
+  .step .no{background:var(--dark);color:#fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0}
+  .chk{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #EEF0EC;font-size:15px}
+  .chk input{width:22px;height:22px;accent-color:var(--teal)}
+  .chk .a{margin-left:auto;font-weight:700}
+  #iab{display:none}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="hdT">ANTI TANGGAL TUA</h1>
+  <p id="hdS">Gaji nggak habis sebelum tanggal 20</p>
+</header>
+<main>
+<div id="iab" class="status bad" style="margin-top:0">⚠️ Kamu membuka dari dalam aplikasi lain (TikTok/IG/FB). Datamu bisa hilang!<br>Salin link ini, lalu buka di <u>Chrome</u>.<button class="btn3" style="margin-top:8px" onclick="salinLink(this)">📋 Salin link</button></div>
+
+<!-- ===== AKTIVASI ===== -->
+<section id="v-aktivasi" class="view">
+  <div class="hero"><div class="t">SELAMAT DATANG</div><div class="big" style="font-size:26px">Aktifkan dulu, yuk</div><div class="d">Masukkan kode yang kamu terima setelah pembelian</div></div>
+  <div class="card">
+    <div class="lbl">Kode aktivasi</div>
+    <input type="text" id="kode" class="code" placeholder="contoh: AB 1234 56" autocapitalize="characters" autocorrect="off" spellcheck="false" maxlength="12" autocomplete="off">
+    <div class="sub" id="kodeMsg" style="margin:8px 0 12px">2 huruf + 6 angka. Kode ada di halaman unduhan / email pembelianmu.</div>
+    <button class="btn" onclick="aktivasi()">Aktifkan</button>
+  </div>
+  <p class="tiny">Lisensi pribadi 1 pembeli · Update gratis selamanya</p>
+</section>
+
+<!-- ===== MULAI (sambutan) ===== -->
+<section id="v-mulai" class="view">
+  <div class="hero"><div class="t">SELAMAT DATANG 👋</div><div class="big" style="font-size:26px">Gaji cukup sampai gajian</div><div class="d">Cuma butuh ±2 menit untuk mulai</div></div>
+  <div class="card">
+    <div class="lbl">Cara kerjanya</div>
+    <div class="step"><div class="no">1</div><div><b>Isi tagihan wajibmu</b><div class="sub">kos, cicilan, kirim ortu, kuota</div></div></div>
+    <div class="step"><div class="no">2</div><div><b>Isi sisa uangmu sekarang</b><div class="sub">app langsung hitung jatah harianmu</div></div></div>
+    <div class="step"><div class="no">3</div><div><b>Hidup pakai Jatah Harian</b><div class="sub">cek saldo seminggu sekali, 1 menit</div></div></div>
+  </div>
+  <div class="card">
+    <div class="lbl">📲 Penting: biar datamu nggak hilang</div>
+    <div class="sub" style="margin-bottom:8px">Datamu disimpan di HP ini, di browser yang kamu pakai sekarang. Selalu buka dari tempat yang sama.</div>
+    <div class="step"><div class="no">A</div><div><b>Android:</b> buka di <b>Chrome</b> → tekan <b>⋮</b> (pojok kanan atas) → <b>Tambahkan ke layar utama</b></div></div>
+    <div class="step"><div class="no">B</div><div><b>iPhone:</b> buka di <b>Safari</b> → tekan <b>⬆️ Bagikan</b> → <b>Tambah ke Layar Utama</b></div></div>
+    <div class="sub" style="margin-top:8px">Setelah itu, buka selalu dari ikon di layar utama. Jangan dari link WhatsApp/TikTok.</div>
+  </div>
+  <button class="btn" onclick="S.welcomed=true;save();go('atur')">Oke, mulai atur →</button>
+  <p class="tiny">Alat bantu anggaran pribadi, bukan nasihat keuangan.</p>
+</section>
+
+<!-- ===== ATUR (isi sekali) ===== -->
+<section id="v-atur" class="view">
+  <div class="card">
+    <div class="lbl">1 · Kapan uang masuk?</div>
+    <div class="seg" id="segJenis">
+      <button data-j="gaji" class="on" onclick="setJenis('gaji')">💼 Gaji</button>
+      <button data-j="saku" onclick="setJenis('saku')">🎒 Uang saku</button>
+    </div>
+    <div class="seg" id="segFreq" style="margin-top:8px">
+      <button data-f="bulan" class="on" onclick="setFreq('bulan')">📅 Bulanan</button>
+      <button data-f="minggu" onclick="setFreq('minggu')">🗓️ Mingguan</button>
+    </div>
+    <div class="in2" id="tglWrap" style="margin-top:10px;grid-template-columns:1fr 110px">
+      <div><div class="n" style="padding-top:12px">Tanggal masuk tiap bulan</div><div class="sub">1 sampai 31</div></div>
+      <input type="number" id="tgl" min="1" max="31" value="25" inputmode="numeric">
+    </div>
+    <div class="in2" id="hariWrap" style="margin-top:10px;grid-template-columns:1fr 150px;display:none">
+      <div><div class="n" style="padding-top:12px">Hari masuk tiap minggu</div><div class="sub">hari kamu terima uang</div></div>
+      <select id="hari" class="sm"><option value="1">Senin</option><option value="2">Selasa</option><option value="3">Rabu</option><option value="4">Kamis</option><option value="5">Jumat</option><option value="6" selected>Sabtu</option><option value="0">Minggu</option></select>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="lbl">2 · Wajib bayar tiap bulan</div>
+    <div class="sub" style="margin-bottom:10px">Kos, kuota, cicilan HP, paylater, kirim ortu… yang pasti keluar tiap bulan.</div>
+    <div id="wajibList"></div>
+    <button class="ghost" onclick="addWajib()">+ tambah baris</button>
+    <div class="row"><div class="n"><b>Total wajib bulanan</b><div class="sub" id="wajibMg"></div></div><div class="v" id="wajibTot">Rp0</div></div>
+  </div>
+
+  <div class="card">
+    <div class="lbl">3 · Pengeluaran setahun sekali <span class="muted" style="text-transform:none;font-weight:400">(boleh dikosongkan)</span></div>
+    <div class="sub" style="margin-bottom:10px">Biang kerok tanggal tua. Dicicil otomatis tiap bulan supaya pas waktunya uangnya sudah ada.</div>
+    <div id="tahunList"></div>
+    <button class="ghost" onclick="addTahun()">+ tambah baris</button>
+    <div class="row"><div class="n"><b id="tahunLbl">Dicicil per bulan</b><div class="sub" id="tahunSub">total setahun ÷ 12</div></div><div class="v" id="tahunBln">Rp0</div></div>
+  </div>
+
+  <details class="adv"><summary>⚙️ Pengaturan lanjutan (boleh dilewati) ▾</summary>
+  <div class="card">
+    <div class="lbl">Celengan</div>
+    <div class="row"><div class="n">Nabung berapa % dari gaji?<div class="sub">Mulai dari 5% dulu. Naikkan kalau sudah terasa ringan.</div></div></div>
+    <div class="seg" id="segPct">
+      <button data-p="0.05" class="on" onclick="setPct(0.05)">5%</button>
+      <button data-p="0.1" onclick="setPct(0.1)">10%</button>
+      <button data-p="0.15" onclick="setPct(0.15)">15%</button>
+    </div>
+    <div class="in2" style="margin-top:12px;grid-template-columns:1fr 140px">
+      <div><div class="n" style="padding-top:8px">Jaga-jaga yang sudah ada</div><div class="sub">uang simpanan darurat saat ini (boleh 0)</div></div>
+      <input type="text" id="jaga" value="0" inputmode="numeric" class="sm rp">
+    </div>
+    <div class="sub">Target pertama: <b>Rp500.000</b>. Setelah itu naik pelan-pelan sampai 1× gaji.</div>
+  </div>
+
+  <div class="card">
+    <div class="lbl">Pembagian jatah hidup</div>
+    <div class="in2" style="grid-template-columns:1fr 90px"><div class="n">🍚 Makan</div><input type="number" id="pMakan" value="60" class="sm" inputmode="numeric"></div>
+    <div class="in2" style="grid-template-columns:1fr 90px"><div class="n">🛵 Transport</div><input type="number" id="pTrans" value="25" class="sm" inputmode="numeric"></div>
+    <div class="in2" style="grid-template-columns:1fr 90px"><div class="n">🎈 Jajan</div><input type="number" id="pJajan" value="15" class="sm" inputmode="numeric"></div>
+    <div class="sub" id="pChk">Total harus 100%</div>
+  </div>
+  </details>
+
+  <button class="btn" onclick="simpanAtur()">Simpan & lanjut ke GAJIAN →</button>
+  <p class="tiny">⚖️ Alat bantu anggaran pribadi, bukan nasihat keuangan, investasi, pajak, atau hukum. Angka contoh hanya ilustrasi. Keputusan keuangan sepenuhnya tanggung jawab pengguna.</p>
+  <button class="ghost" onclick="go('mulai')">📲 Cara pasang di layar utama</button>
+  <button class="btn3" onclick="resetAll()" style="margin-bottom:16px">Hapus semua data di HP ini</button>
+</section>
+
+<!-- ===== GAJIAN ===== -->
+<section id="v-gajian" class="view">
+  <div id="gajianBelum">
+    <div class="card center">
+      <div style="font-size:40px">🚀</div>
+      <div style="font-weight:800;font-size:18px;margin:6px 0">Ayo mulai!</div>
+      <div class="sub" style="margin-bottom:14px">Gajian terakhir sudah lewat? Nggak apa-apa, kita mulai dari sisa uangmu sekarang.</div>
+      <button class="btn" onclick="openAwal()">Mulai dari sisa uangku sekarang</button>
+      <button class="btn3" style="margin-top:8px" onclick="openGajian()">Hari ini aku gajian (uang masih utuh)</button>
+    </div>
+    <div id="streakCard"></div>
+  </div>
+
+  <div id="gajianAda" style="display:none">
+    <button class="btn" id="paydayBtn" style="display:none;margin-bottom:12px" onclick="openGajian()">🎉 Sudah waktunya gajian! Tekan untuk bagi uang</button>
+    <div class="hero">
+      <div class="t">⭐ JATAH HARIAN AMAN-MU</div>
+      <div class="big" id="daily">Rp0</div>
+      <div class="d" id="dailySplit"></div>
+      <div class="till" id="till"></div>
+    </div>
+    <div class="status" id="gStatus"></div>
+    <div class="rule" id="ruleBox">📌 <b>Aturan 1 dompet:</b> taruh semua Jatah Hidup di <u>satu</u> tempat (misal DANA). Uang lain pindahkan hari ini juga.</div>
+
+    <div class="card">
+      <div class="lbl" id="kantongLbl">3 kantong bulan ini</div>
+      <div class="pocket"><div class="ic">🔒</div><div class="m"><b>WAJIB</b><div class="sub" id="wajibSub">bayar sekarang: kos, cicilan, kuota, kirim ortu + cicilan tahunan</div><div class="bar"><i id="bWajib"></i></div></div><div class="amt" id="aWajib"></div></div>
+      <div class="pocket"><div class="ic">🐷</div><div class="m"><b>CELENGAN</b><div class="sub" id="celSub">pindahkan ke rekening lain sekarang</div><div class="bar"><i id="bCel"></i></div></div><div class="amt" id="aCel"></div></div>
+      <div class="pocket"><div class="ic">🍚</div><div class="m"><b>JATAH HIDUP</b><div class="sub">cuma ini yang boleh dipakai sampai gajian</div><div class="bar"><i id="bHidup"></i></div></div><div class="amt" id="aHidup"></div></div>
+    </div>
+
+    <div class="card">
+      <div class="lbl">Jaga-jaga</div>
+      <div class="row" style="border:0;padding-top:0"><div class="n" id="jagaTxt"></div><div class="v" id="jagaPct"></div></div>
+      <div class="bar acc"><i id="bJaga"></i></div>
+      <div class="sub" style="margin-top:8px">Kalau sudah tercapai, bagian jaga-jaga otomatis pindah ke tabungan.</div>
+    </div>
+
+    <div class="row" style="padding:4px 2px 14px"><div class="sub" id="periodeTxt"></div><button class="ghost" style="width:auto" id="ubahBtn" onclick="openGajian()">ubah gaji</button></div>
+  </div>
+  <p class="tiny">Alat bantu anggaran pribadi, bukan nasihat keuangan. Angka contoh = ilustrasi.</p>
+</section>
+
+
+<!-- ===== BOLEH BELI ===== -->
+<section id="v-beli" class="view">
+  <div class="card">
+    <div class="lbl">🛒 Boleh beli nggak? · cek sebelum checkout</div>
+    <input type="text" id="bNama" placeholder="Barang apa? (opsional)" class="sm" style="margin-bottom:8px">
+    <input type="text" id="bHarga" class="rp" inputmode="numeric" placeholder="Harga + ongkir (Rp)">
+    <button class="btn2" style="margin-top:10px" onclick="cekBeli()">Cek dulu 🤔</button>
+  </div>
+  <div id="beliHasil"></div>
+  <div id="tundaBox"></div>
+  <div id="selamatCard"></div>
+  <p class="tiny">Hitungan pakai sisa Jatah Hidup-mu. Biar makin akurat, rajin CEK SALDO seminggu sekali.</p>
+</section>
+
+<!-- ===== CEK SALDO ===== -->
+<section id="v-cek" class="view">
+  <div class="card">
+    <div class="lbl">Cek saldo · 1 menit</div>
+    <div class="sub" id="cekSub" style="margin-bottom:10px">Seminggu sekali. Buka dompet Jatah Hidup-mu (1 tempat itu), ketik saldonya.</div>
+    <input type="text" id="saldo" placeholder="Saldo sekarang (Rp)" inputmode="numeric" class="rp">
+    <button class="btn2" style="margin-top:10px" onclick="cekSaldo()">Cek sekarang</button>
+  </div>
+  <div id="cekHasil"></div>
+  <div class="card" id="cekHistCard" style="display:none"><div class="lbl">Riwayat cek bulan ini</div><div id="cekHist"></div></div>
+  <div class="card"><div class="lbl">Rumusnya simpel</div><div class="sub">Saldo ideal = Jatah Hidup × sisa hari ÷ total hari. Kalau saldomu di atas itu, kamu aman. Kalau di bawah, jatah harianmu dihitung ulang supaya tetap cukup sampai gajian.</div></div>
+</section>
+
+<!-- ===== UANG BOCOR ===== -->
+<section id="v-bocor" class="view">
+  <div class="hero"><div class="t">💸 UANG BOCOR KETEMU</div><div class="big" id="bocorTot">Rp0</div><div class="d" id="bocorSub">per bulan · centang yang kamu alami</div><div class="till" id="bocorTip"></div></div>
+  <div class="card"><div class="sub" style="margin-bottom:8px">Angka = perkiraan sebulan. Ubah sesuai kebiasaanmu.</div><div id="leakList"></div></div>
+  <p class="tiny">Tutup separuhnya saja, lalu naikkan % celengan di menu ATUR.</p>
+</section>
+
+</main>
+
+<nav>
+  <a href="#gajian" id="n-gajian"><span>💵</span>GAJIAN</a>
+  <a href="#beli" id="n-beli"><span>🛒</span>BOLEH BELI?</a>
+  <a href="#cek" id="n-cek"><span>✅</span>CEK SALDO</a>
+  <a href="#bocor" id="n-bocor"><span>💸</span>UANG BOCOR</a>
+  <a href="#atur" id="n-atur"><span>⚙️</span>ATUR</a>
+</nav>
+
+<!-- ===== SHEET MULAI DARI SISA ===== -->
+<div class="ov" id="ovA" onclick="if(event.target===this)closeA()">
+  <div class="sheet" style="max-height:90vh;overflow:auto">
+    <h3>🚀 Mulai dari hari ini</h3>
+    <div class="sub" style="margin-bottom:10px">Gabung semua uangmu sekarang: rekening + e-wallet + uang tunai.</div>
+    <input type="text" id="sisaUang" class="rp" placeholder="Uangku sekarang tinggal (Rp)" inputmode="numeric">
+    <div id="unpaidBox" style="margin-top:12px"></div>
+    <button class="btn" style="margin-top:12px" onclick="simpanAwal()">Hitung jatah harianku →</button>
+    <button class="ghost" onclick="closeA()">batal</button>
+  </div>
+</div>
+
+<!-- ===== SHEET GAJIAN ===== -->
+<div class="ov" id="ovG" onclick="if(event.target===this)closeG()">
+  <div class="sheet">
+    <h3 id="shT">💵 Uang masuk berapa?</h3>
+    <div id="streakAsk" style="display:none" class="rule">Bulan kemarin bertahan sampai gajian tanpa ngutang? <div class="seg" style="margin-top:8px"><button onclick="streakAns(true)">Iya 🔥</button><button onclick="streakAns(false)">Belum</button></div></div>
+    <input type="text" id="gaji" placeholder="contoh: 3.200.000" inputmode="numeric" class="rp">
+    <div class="in2" style="margin-top:10px;grid-template-columns:1fr 140px"><div><div class="n" style="padding-top:8px">➕ Lembur / bonus / THR</div><div class="sub">opsional · separuh otomatis masuk celengan</div></div><input type="text" id="bonus" placeholder="0" class="sm rp" inputmode="numeric"></div>
+    <div class="in2" style="grid-template-columns:1fr 160px"><div><div class="n" style="padding-top:8px">📅 Masuk tanggal</div><div class="sub">biasanya hari ini</div></div><input type="date" id="tglMasuk" class="sm"></div>
+    <button class="btn" onclick="simpanGajian()">Bagi sekarang →</button>
+    <button class="ghost" onclick="closeG()">batal</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+// ---------- util ----------
+const KEY='att_v1';
+const rp=n=>'Rp'+Math.round(n||0).toLocaleString('id-ID');
+const rpk=n=>Math.round(n||0).toLocaleString('id-ID');
+const HARI=['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'];
+const BLN=['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+const fd=d=>`${HARI[d.getDay()]}, ${d.getDate()} ${BLN[d.getMonth()]}`;
+const fds=d=>`${d.getDate()} ${BLN[d.getMonth()]}`;
+const dayOnly=d=>new Date(d.getFullYear(),d.getMonth(),d.getDate());
+const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const N=v=>{const x=parseFloat(String(v??"").replace(/\./g,"").replace(",","."));return isNaN(x)?0:x};
+function fmtIn(el){const d=el.value.replace(/[^0-9]/g,"");el.value=d?Number(d).toLocaleString("id-ID"):"";}
+document.addEventListener("input",e=>{if(e.target.classList&&e.target.classList.contains("rp"))fmtIn(e.target)});
+const $=id=>document.getElementById(id);
+function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return {}}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+const LEAKS=[["🛒 Checkout Shopee / TikTok Live yang nggak direncanakan",150000],["🎮 Top-up game, skin, gacha",75000],["☕ Kopi sachet naik kelas jadi kopi kekinian",120000],["🚬 Rokok / vape ketengan tiap hari",250000],["🍔 Pesan makan online padahal bisa masak / warteg",150000],["📶 Kuota & pulsa beli eceran (lebih mahal)",40000],["📦 Ongkir belanja kecil-kecil",60000],["⏰ Denda / bunga telat paylater & pinjol",60000],["🏦 Biaya admin transfer & tarik tunai",30000],["🏪 Jajan minimarket pas mampir",100000],["🍻 Nongkrong 'cuma 20 ribu' tapi 5× seminggu",150000],["💧 Air botol tiap hari (padahal ada galon)",45000],["🛵 Ojek online jarak dekat yang bisa jalan kaki",60000],["📺 Langganan streaming / app yang jarang dipakai",50000],["🎁 Traktir / patungan karena nggak enak nolak",80000]];
+
+let S=load();
+S.wajib=S.wajib||[["Kos / kontrakan",0],["Cicilan HP / paylater",0],["Kirim orang tua",0],["Kuota & pulsa",0]];
+S.tahun=S.tahun||[["Lebaran / mudik",0],["Pajak motor (STNK)",0],["Kondangan & kado",0]];
+S.pct=S.pct||0.05; S.welcomed=S.welcomed||false; S.jenis=S.jenis||'gaji'; S.freq=S.freq||'bulan'; if(S.hari===undefined)S.hari=6; S.tgl=S.tgl||25; S.jaga=S.jaga||0;
+S.split=S.split||[60,25,15]; S.leaks=S.leaks||LEAKS.map(l=>({on:false,amt:l[1]}));
+S.cek=S.cek||[]; S.streak=S.streak||0; S.beli=S.beli||[]; S.tunda=S.tunda||[]; S.selamat=S.selamat||0; S.selamatN=S.selamatN||0;
+
+// ---------- aktivasi (penghalang ringan, bukan kunci) ----------
+function validKode(k){
+  const c=(k||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  const m2=c.match(/^([A-Z])([A-Z])([0-9]{4})([0-9]{2})$/);
+  if(m2){const v=((m2[1].charCodeAt(0)-65)*26+(m2[2].charCodeAt(0)-65))*10000+parseInt(m2[3],10);return parseInt(m2[4],10)===(v*7919+13)%97;}
+  k=(k||'').toUpperCase().replace(/[^A-Z0-9]/g,'');
+  const m=k.match(/^ATT([A-Z0-9]{4})([A-Z0-9]{4})$/); if(!m) return false;
+  let h=7; for(const ch of m[1]) h=(h*31+ch.charCodeAt(0))%46656;
+  const nz=t=>t.replace(/O/g,'0').replace(/[IL]/g,'1');
+  return nz(m[2])===nz(h.toString(36).toUpperCase().padStart(4,'0'));
+}
+function aktivasi(){
+  const k=$('kode').value;
+  if(validKode(k)){S.aktif=true;save();go('mulai');}
+  else{$('kodeMsg').textContent='Kode belum pas. Cek lagi huruf & angkanya ya.';$('kodeMsg').style.color='#991B1B';}
+}
+
+// ---------- ATUR ----------
+function rowInput(list,i,name,amt,fn,ph){
+  return `<div class="addrow"><input type="text" class="sm" value="${name.replace(/"/g,'&quot;')}" placeholder="nama" oninput="S.${list}[${i}][0]=this.value;save()"><input type="text" class="sm rp" value="${amt?rpk(amt):''}" placeholder="${ph||'Rp'}" inputmode="numeric" oninput="S.${list}[${i}][1]=N(this.value);save();${fn}()"><button class="del" onclick="S.${list}.splice(${i},1);save();renderAtur()">✕</button></div>`;
+}
+function renderAtur(){
+  if(!S.wajib.length)S.wajib.push(['',0]); if(!S.tahun.length)S.tahun.push(['',0]);
+  $('wajibList').innerHTML=S.wajib.map((w,i)=>rowInput('wajib',i,w[0],w[1],'totWajib','Rp / bulan')).join('');
+  $('tahunList').innerHTML=S.tahun.map((w,i)=>rowInput('tahun',i,w[0],w[1],'totTahun','Rp / tahun')).join('');
+  totWajib(); totTahun();
+  $('tgl').value=S.tgl; $('jaga').value=S.jaga?rpk(S.jaga):'';
+  $('pMakan').value=S.split[0];$('pTrans').value=S.split[1];$('pJajan').value=S.split[2];
+  document.querySelectorAll('#segPct button').forEach(b=>b.classList.toggle('on',N(b.dataset.p)===S.pct));
+  $('hari').value=String(S.hari); setJenis(S.jenis,true); setFreq(S.freq,true); chkSplit();
+}
+const sumW=()=>S.wajib.reduce((a,w)=>a+N(w[1]),0);
+const sumT=()=>S.tahun.reduce((a,w)=>a+N(w[1]),0);
+const tahunBln=()=>Math.ceil(sumT()/12/1000)*1000;
+const W=()=>S.freq==='minggu';
+const wajibPer=()=>W()?Math.round(sumW()*12/52/1000)*1000:sumW();
+const tahunPer=()=>W()?Math.ceil(sumT()/52/1000)*1000:tahunBln();
+function totWajib(){$('wajibTot').textContent=rp(sumW());$('wajibMg').textContent=W()?`≈ ${rp(wajibPer())} disisihkan per minggu`:''}
+function totTahun(){$('tahunBln').textContent=rp(tahunPer());$('tahunLbl').textContent=W()?'Dicicil per minggu':'Dicicil per bulan';$('tahunSub').textContent=W()?'total setahun ÷ 52':'total setahun ÷ 12'}
+function addWajib(){S.wajib.push(['',0]);save();renderAtur()}
+function addTahun(){S.tahun.push(['',0]);save();renderAtur()}
+function setPct(p){S.pct=p;save();document.querySelectorAll('#segPct button').forEach(b=>b.classList.toggle('on',N(b.dataset.p)===p))}
+function hdText(){$('hdS').textContent=S.jenis==='saku'?'Uang saku cukup sampai kiriman berikutnya':(W()?'Gaji mingguan cukup sampai gajian berikutnya':'Gaji nggak habis sebelum tanggal 20');}
+function setJenis(j,quiet){S.jenis=j;if(!quiet)save();document.querySelectorAll('#segJenis button').forEach(b=>b.classList.toggle('on',b.dataset.j===j));hdText();}
+function setFreq(f,quiet){S.freq=f;if(!quiet)save();document.querySelectorAll('#segFreq button').forEach(b=>b.classList.toggle('on',b.dataset.f===f));
+  $('tglWrap').style.display=f==='minggu'?'none':'grid';$('hariWrap').style.display=f==='minggu'?'grid':'none';totWajib();totTahun();hdText();}
+['pMakan','pTrans','pJajan'].forEach(id=>$(id).addEventListener('input',chkSplit));
+function chkSplit(){const t=N($('pMakan').value)+N($('pTrans').value)+N($('pJajan').value);$('pChk').innerHTML=t===100?'<span class="chip">✓ pas 100%</span>':`<b style="color:#991B1B">Total ${t}% — harus 100%</b>`;return t===100}
+function simpanAtur(){
+  if(!chkSplit()){window.scrollTo(0,document.body.scrollHeight);return}
+  S.tgl=Math.min(31,Math.max(1,Math.round(N($('tgl').value))||25));
+  S.hari=parseInt($('hari').value,10); S.jaga=N($('jaga').value); S.split=[N($('pMakan').value),N($('pTrans').value),N($('pJajan').value)];
+  S.wajib=S.wajib.filter(w=>N(w[1])>0); S.tahun=S.tahun.filter(w=>N(w[1])>0);
+  S.setup=true; save(); go('gajian'); if(!S.periode) openAwal();
+}
+function resetAll(){ if(S._confirmReset){localStorage.removeItem(KEY);location.hash='';location.reload();return}
+  S._confirmReset=true; event.target.textContent='Yakin? Tekan sekali lagi untuk hapus'; setTimeout(()=>{S._confirmReset=false;event.target.textContent='Hapus semua data di HP ini'},4000);}
+
+// ---------- hitung ----------
+function nextPayday(from){
+  if(W()){const d=new Date(from);for(let i=1;i<=7;i++){d.setDate(d.getDate()+1);if(d.getDay()===S.hari)return new Date(d);}}
+  // gajian berikutnya = tanggal gajian pertama SETELAH tanggal uang masuk
+  for(let k=0;k<=1;k++){
+    const y=from.getFullYear(),m=from.getMonth()+k;
+    const last=new Date(y,m+1,0).getDate();
+    const d=new Date(y,m,Math.min(S.tgl,last));
+    if(d>from) return d;
+  }
+  return new Date(from.getFullYear(),from.getMonth()+1,Math.min(S.tgl,28));
+}
+function calc(){
+  const P=S.periode; if(!P) return null;
+  if(P.awal){
+    const start=new Date(P.start), next=nextPayday(start);
+    const days=Math.max(1,Math.round((next-start)/864e5));
+    const sisa=N(P.sisa), unpaid=N(P.unpaid), hidup=Math.max(0,sisa-unpaid);
+    return {awal:true,gaji:sisa,bonus:0,start,next,days,wajib:unpaid,wajibBln:unpaid,tBln:0,rest:sisa-unpaid,cel:0,tab:0,jaga:0,hidup,daily:Math.floor(hidup/days/100)*100,targetJaga:S.jaga>=500000?500000*2:500000,jagaFull:false};
+  }
+  const gaji=N(P.gaji), bonus=N(P.bonus);
+  const start=new Date(P.start), next=nextPayday(start);
+  const days=Math.max(1,Math.round((next-start)/864e5));
+  const wajibBln=wajibPer(), tBln=tahunPer(), wajib=wajibBln+tBln;
+  const rest=gaji-wajib;
+  let pct=S.pct; if(gaji>0 && rest>0 && rest/gaji<0.4) pct=Math.min(pct,0.05);
+  const gajiBln=W()?Math.round(gaji*52/12):gaji;
+  const targetJaga=S.jaga>=500000?gajiBln:500000;
+  const jagaFull=S.jaga>=targetJaga;
+  let tab=rest<=0?0:Math.round(gaji*(pct+(jagaFull?0.03:0))/1000)*1000;
+  let jaga=(rest<=0||jagaFull)?0:Math.min(W()?25000:100000,Math.max(0,targetJaga-S.jaga));
+  let cel=Math.min(Math.max(0,rest),tab+jaga);
+  if(cel<tab+jaga){ jaga=Math.min(jaga,cel); tab=cel-jaga; }
+  const bonusCel=Math.round(bonus*0.5/1000)*1000;
+  const hidup=Math.max(0,rest-cel)+(bonus-bonusCel);
+  const daily=Math.floor(hidup/days/100)*100;
+  return {gaji,bonus,start,next,days,wajib,wajibBln,tBln,rest,cel:cel+bonusCel,tab,jaga,hidup,daily,targetJaga,jagaFull};
+}
+
+// ---------- GAJIAN ----------
+function openGajian(){
+  $('tglMasuk').value=iso(new Date());
+  const pr=S.periode&&!S.periode.awal?S.periode:null; $('gaji').value=pr?rpk(pr.gaji):''; $('bonus').value=pr&&pr.bonus?rpk(pr.bonus):'';
+  $('shT').textContent=S.jenis==='saku'?'🎒 Uang saku masuk berapa?':(W()?'💵 Gaji minggu ini berapa?':'💵 Gaji bulan ini berapa?');
+  const ask=S.periode && !S.periode.awal && new Date()-new Date(S.periode.start)>(W()?5:20)*864e5;
+  $('streakAsk').innerHTML=`${W()?'Minggu':'Bulan'} kemarin bertahan sampai gajian tanpa ngutang? <div class="seg" style="margin-top:8px"><button onclick="streakAns(true)">Iya 🔥</button><button onclick="streakAns(false)">Belum</button></div>`;
+  $('streakAsk').style.display=ask?'block':'none'; S._streakAns=null;
+  $('ovG').classList.add('on'); setTimeout(()=>$('gaji').focus(),50);
+}
+function closeG(){$('ovG').classList.remove('on')}
+function openAwal(){
+  $('sisaUang').value='';
+  const items=S.wajib.filter(w=>N(w[1])>0);
+  $('unpaidBox').innerHTML=items.length?`<div class="lbl">Mana yang BELUM dibayar sebelum ${S.jenis==='saku'?'kiriman':'gajian'} berikutnya?</div><div class="sub" style="margin-bottom:4px">Centang yang belum. Yang sudah lunas biarkan kosong.</div>`+items.map((w,i)=>`<label class="chk"><input type="checkbox" data-amt="${N(w[1])}"><span>${esc(w[0])||'Tagihan'}</span><span class="a">${rp(w[1])}</span></label>`).join(''):'';
+  $('ovA').classList.add('on'); setTimeout(()=>$('sisaUang').focus(),50);
+}
+function closeA(){$('ovA').classList.remove('on')}
+function simpanAwal(){
+  const sisa=N($('sisaUang').value); if(sisa<=0){$('sisaUang').focus();return}
+  let unpaid=0; document.querySelectorAll('#unpaidBox input:checked').forEach(c=>unpaid+=N(c.dataset.amt));
+  S.periode={awal:true,sisa,unpaid,start:iso(dayOnly(new Date()))}; S.cek=[]; S.beli=[];
+  save(); closeA(); renderGajian(); window.scrollTo(0,0);
+}
+function salinLink(b){try{navigator.clipboard.writeText(location.href.split('#')[0]).then(()=>{b.textContent='✓ Tersalin. Buka Chrome, tempel di alamat.'},()=>{b.textContent=location.href.split('#')[0]})}catch(e){b.textContent=location.href.split('#')[0]}}
+function streakAns(v){S._streakAns=v;$('streakAsk').innerHTML=v?'🔥 Mantap! Streak-mu nambah.':'Nggak apa-apa, bulan ini kita atur lebih rapi.';}
+function simpanGajian(){
+  const g=N($('gaji').value); if(g<=0){$('gaji').focus();return}
+  const d=$('tglMasuk').value?new Date($('tglMasuk').value+'T00:00:00'):dayOnly(new Date());
+  const baru=!S.periode || S.periode.start!==iso(d);
+  if(S._streakAns===true) S.streak=(S.streak||0)+1; else if(S._streakAns===false) S.streak=0;
+  if(baru){S.cek=[];S.beli=[];}
+  S.periode={gaji:g,bonus:N($('bonus').value),start:iso(d)};
+  save(); closeG(); renderGajian(); window.scrollTo(0,0);
+}
+function renderGajian(){
+  const C=calc();
+  $('gajianBelum').style.display=C?'none':'block'; $('gajianAda').style.display=C?'block':'none';
+  $('streakCard').innerHTML=S.streak?`<div class="card center">🔥 <b>${S.streak} ${W()?'minggu':'bulan'}</b> berturut-turut bertahan sampai gajian</div>`:'';
+  if(!C) return;
+  $('daily').textContent=rp(C.daily);
+  $('paydayBtn').style.display=dayOnly(new Date())>=C.next?'block':'none';
+  $('kantongLbl').textContent=C.awal?'3 kantong sampai gajian':(W()?'3 kantong minggu ini':'3 kantong bulan ini');
+  $('ubahBtn').textContent=C.awal?'ubah sisa uang':'ubah gaji'; $('ubahBtn').onclick=C.awal?openAwal:openGajian;
+  $('wajibSub').textContent=W()?'sisihkan sekarang: jatah mingguan kos, cicilan, kirim ortu + cicilan tahunan. Jangan dipakai!':'bayar sekarang: kos, cicilan, kuota, kirim ortu + cicilan tahunan';
+  const sp=S.split; $('dailySplit').textContent=`🍚 Makan ${rpk(Math.floor(C.daily*sp[0]/100/100)*100)}  ·  🛵 Transport ${rpk(Math.floor(C.daily*sp[1]/100/100)*100)}  ·  🎈 Jajan ${rpk(Math.floor(C.daily*sp[2]/100/100)*100)}`;
+  $('till').textContent=`sampai ${S.jenis==='saku'?'kiriman':'gajian'} berikutnya: ${fd(C.next)} (${C.days} hari)`;
+  const st=$('gStatus');
+  if(C.awal){ if(C.rest<=0){st.className='status bad';st.textContent='🚨 Sisa uangmu kurang untuk tagihan yang belum dibayar. Bayar yang paling penting dulu (kos, cicilan), lalu cek tab UANG BOCOR.';} else {st.className='status good';st.textContent='✅ Mulai hari ini, hidup pakai jatah harian ini. Nabung mulai gajian berikutnya ya.';} }
+  else if(C.rest<=0){st.className='status bad';st.textContent='🚨 Wajib bayarmu lebih besar dari uang masuk. Ini bukan soal hemat lagi, ada tagihan yang harus dipangkas. Cek menu ATUR.';}
+  else if(C.wajib/C.gaji>0.7){st.className='status warn';st.textContent='⚠️ Lebih dari 70% uangmu habis buat wajib bayar. Bulan ini ketat. Cek tab UANG BOCOR untuk cari napas.';}
+  else{st.className='status good';st.textContent=W()?'✅ Aman! Sisihkan WAJIB & CELENGAN sekarang juga (pisah dompet), baru hidup pakai jatah harian.':'✅ Aman! Bayar WAJIB & pindahkan CELENGAN sekarang juga, baru hidup pakai jatah harian.';}
+  const pc=(x)=>Math.min(100,Math.round(x/(C.gaji+C.bonus)*100));
+  $('aWajib').textContent=rp(C.wajib); $('bWajib').style.width=pc(C.wajib)+'%';
+  $('aCel').textContent=rp(C.cel); $('bCel').style.width=pc(C.cel)+'%';
+  if(C.awal){$('wajibSub').textContent=C.wajib?'yang belum dibayar: sisihkan sekarang, jangan dipakai':'semua tagihan sudah lunas 👍';}
+  $('celSub').textContent=C.awal?'mulai gajian berikutnya':`tabungan ${rp(C.tab)}${C.jaga?` + jaga-jaga ${rp(C.jaga)}`:''}${C.bonus?` + dari bonus ${rp(C.cel-C.tab-C.jaga)}`:''} → pindahkan sekarang`;
+  $('aHidup').textContent=rp(C.hidup); $('bHidup').style.width=pc(C.hidup)+'%';
+  const jp=Math.min(1,S.jaga/C.targetJaga);
+  $('jagaTxt').innerHTML=`${rp(S.jaga)} <span class="muted">dari target ${rp(C.targetJaga)}</span>`;
+  $('jagaPct').textContent=Math.round(jp*100)+'%'; $('bJaga').style.width=(jp*100)+'%';
+  $('periodeTxt').textContent=C.awal?`Mulai ${fds(C.start)} – ${fds(C.next)} · sisa uang ${rp(C.gaji)}`:`Periode ${fds(C.start)} – ${fds(C.next)} · ${S.jenis==='saku'?'uang saku':'gaji'} ${rp(C.gaji)}${C.bonus?' + bonus '+rp(C.bonus):''}`;
+}
+
+// ---------- CEK SALDO ----------
+function cekSaldo(){
+  const C=calc(); const s=N($('saldo').value);
+  if(!C){$('cekHasil').innerHTML='<div class="status grey">Isi dulu gajianmu di tab GAJIAN ya.</div>';return}
+  if(s<=0){$('saldo').focus();return}
+  const today=dayOnly(new Date());
+  const lewat=Math.max(0,Math.min(C.days,Math.round((today-C.start)/864e5)));
+  const sisa=Math.max(1,C.days-lewat);
+  const ideal=Math.round(C.hidup*sisa/C.days/1000)*1000;
+  const baru=Math.floor(s/sisa/100)*100;
+  let cls,txt;
+  if(s>=ideal){cls='good';txt=`🟢 AMAN — lanjutkan! Saldomu di atas ideal (${rp(ideal)}).`}
+  else if(s>=0.85*ideal){cls='warn';txt=`🟡 REM DIKIT. Ideal ${rp(ideal)}, kamu ${rp(s)}. Masih bisa diselamatkan.`}
+  else{cls='bad';txt=`🔴 BAHAYA. Ideal ${rp(ideal)}, kamu ${rp(s)}. Pakai jatah baru di bawah ini.`}
+  $('cekHasil').innerHTML=`<div class="status ${cls}">${txt}</div><div class="hero"><div class="t">⭐ JATAH HARIAN MULAI HARI INI</div><div class="big">${rp(baru)}</div><div class="d">${sisa} hari lagi sampai ${S.jenis==='saku'?'kiriman':'gajian'}</div></div>`;
+  S.cek.push({t:iso(today),ts:Date.now(),s,ideal,baru}); if(S.cek.length>8)S.cek.shift(); save(); renderCekHist(); $('saldo').value='';
+}
+function renderCekHist(){
+  const h=$('cekHist'),card=$('cekHistCard'); if(!S.cek.length){card.style.display='none';return}
+  card.style.display='block';
+  h.innerHTML=S.cek.slice().reverse().map(c=>{const d=new Date(c.t+'T00:00:00');const ok=c.s>=c.ideal?'🟢':c.s>=0.85*c.ideal?'🟡':'🔴';return `<div class="hist"><span>${ok} ${fds(d)}</span><span>${rp(c.s)} <span class="muted">· jatah ${rp(c.baru)}</span></span></div>`}).join('');
+}
+
+
+// ---------- BOLEH BELI ----------
+const esc=t=>String(t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const dec=x=>x.toLocaleString('id-ID',{maximumFractionDigits:1});
+function sisaJatah(C){
+  const today=dayOnly(new Date());
+  const lewat=Math.max(0,Math.min(C.days,Math.round((today-C.start)/864e5)));
+  const sisa=Math.max(1,C.days-lewat);
+  const last=S.cek.length?S.cek[S.cek.length-1]:null;
+  let base,since=0;
+  if(last){base=last.s;since=last.ts||new Date(last.t+'T23:59:59').getTime();}
+  else base=Math.round(C.hidup*sisa/C.days);
+  const spent=S.beli.filter(b=>b.ts>since).reduce((a,b)=>a+b.harga,0);
+  return {base:base-spent,sisa,dariCek:!!last};
+}
+function cekBeli(){
+  const C=calc(); const box=$('beliHasil');
+  if(!C){box.innerHTML='<div class="status grey">Isi dulu gajianmu di tab GAJIAN ya.</div>';return}
+  const harga=N($('bHarga').value); if(harga<=0){$('bHarga').focus();return}
+  const nama=$('bNama').value.trim();
+  const J=sisaJatah(C);
+  const makan=Math.floor(C.daily*S.split[0]/100/100)*100;
+  const cur=Math.floor(Math.max(0,J.base)/J.sisa/100)*100;
+  const after=J.base-harga, nw=Math.floor(Math.max(0,after)/J.sisa/100)*100;
+  let cls,txt;
+  if(after<0){cls='bad';txt=`🔴 Uangnya nggak ada. Sisa jatahmu cuma ${rp(Math.max(0,J.base))} untuk ${J.sisa} hari ke depan.`}
+  else if(nw>=0.9*cur){cls='good';txt=`🟢 Boleh. Jatah harianmu jadi ${rp(nw)} (dari ${rp(cur)}).`}
+  else if(nw>=0.75*cur){cls='warn';txt=`🟡 Pikir lagi. Jatah harian turun dari ${rp(cur)} jadi ${rp(nw)} selama ${J.sisa} hari.`}
+  else{cls='bad';txt=`🔴 Jangan sekarang. Jatah harian anjlok dari ${rp(cur)} jadi ${rp(nw)} selama ${J.sisa} hari.`}
+  const setara=makan>0?`${dec(harga/makan)} hari makan`:rp(harga);
+  S._cur={nama,harga}; 
+  box.innerHTML=`<div class="hero"><div class="t">${nama?esc(nama).toUpperCase()+' ':'BARANG INI '}SETARA</div><div class="big" style="font-size:38px">${setara}</div><div class="d">${C.daily>0?`atau ${dec(harga/C.daily)} hari jatah harian penuh`:''}</div></div>
+  <div class="status ${cls}">${txt}</div>
+  <button class="btn" onclick="tunda()">⏳ Tunda 24 jam dulu</button>
+  <div class="seg" style="margin:8px 0 12px"><button onclick="putus(true)">Tetap beli</button><button onclick="putus(false)">Nggak jadi 🎉</button></div>
+  ${J.dariCek?'':'<p class="tiny">Belum ada cek saldo bulan ini, jadi sisa jatah dihitung dari rencana.</p>'}`;
+}
+function clearBeli(){$('beliHasil').innerHTML='';$('bHarga').value='';$('bNama').value='';S._cur=null;}
+function tunda(){if(!S._cur)return;S.tunda.push({...S._cur,ts:Date.now()});save();clearBeli();renderBeli();}
+function putus(jadi){if(!S._cur)return;
+  if(jadi)S.beli.push({...S._cur,ts:Date.now()}); else{S.selamat+=S._cur.harga;S.selamatN++;}
+  save();clearBeli();renderBeli();if(!jadi)flash();}
+function putusTunda(i,jadi){const t=S.tunda.splice(i,1)[0];
+  if(jadi)S.beli.push({nama:t.nama,harga:t.harga,ts:Date.now()}); else{S.selamat+=t.harga;S.selamatN++;}
+  save();renderBeli();if(!jadi)flash();}
+function batalBeli(i){S.beli.splice(i,1);save();renderBeli();}
+function flash(){try{const e=$('selamatCard').firstElementChild;if(e&&e.animate)e.animate([{transform:'scale(1.06)'},{transform:'scale(1)'}],{duration:400});}catch(x){}}
+function renderBeli(){
+  const now=Date.now();
+  let h='';
+  if(S.tunda.length){
+    h+='<div class="card"><div class="lbl">⏳ Lagi ditunda</div>'+S.tunda.map((t,i)=>{
+      const ok=now-t.ts>=864e5, j=new Date(t.ts+864e5);
+      const kapan=ok?'<b style="color:#065F46">Sudah 24 jam. Masih mau?</b>':`putuskan ${fd(j)}, ${String(j.getHours()).padStart(2,'0')}:${String(j.getMinutes()).padStart(2,'0')}`;
+      return `<div class="row" style="display:block"><div style="display:flex;justify-content:space-between;gap:8px"><span>${esc(t.nama)||'Barang'}</span><b>${rp(t.harga)}</b></div><div class="sub" style="margin:4px 0 8px">${kapan}</div><div class="seg"><button onclick="putusTunda(${i},true)">Jadi beli</button><button class="on" onclick="putusTunda(${i},false)">Nggak jadi 🎉</button></div></div>`}).join('')+'</div>';
+  }
+  if(S.beli.length){
+    h+='<div class="card"><div class="lbl">🧾 Dibeli periode ini</div>'+S.beli.map((b,i)=>`<div class="row"><div class="n">${esc(b.nama)||'Barang'}<div class="sub">${fds(new Date(b.ts))}</div></div><div style="display:flex;align-items:center;gap:8px"><b>${rp(b.harga)}</b><button class="del" onclick="batalBeli(${i})">✕</button></div></div>`).join('')+'</div>';
+  }
+  $('tundaBox').innerHTML=h;
+  $('selamatCard').innerHTML=S.selamatN?`<div class="card center" style="background:#D1FAE5"><div class="sub" style="color:#065F46;font-weight:700">💚 UANG TERSELAMATKAN</div><div style="font-size:30px;font-weight:800;color:#065F46;margin:4px 0">${rp(S.selamat)}</div><div class="sub" style="color:#065F46">${S.selamatN} barang nggak jadi dibeli</div></div>`:'';
+}
+
+// ---------- UANG BOCOR ----------
+function renderLeaks(){
+  $('leakList').innerHTML=LEAKS.map((l,i)=>`<div class="leak ${S.leaks[i].on?'on':''}"><input type="checkbox" ${S.leaks[i].on?'checked':''} onchange="S.leaks[${i}].on=this.checked;save();renderLeaks()"><div class="m">${l[0]}</div><input type="text" class="amt rp" value="${rpk(S.leaks[i].amt)}" inputmode="numeric" oninput="S.leaks[${i}].amt=N(this.value);save();totLeaks()"></div>`).join('');
+  totLeaks();
+}
+function totLeaks(){
+  const t=S.leaks.reduce((a,l)=>a+(l.on?N(l.amt):0),0);
+  $('bocorTot').textContent=rp(t);
+  $('bocorSub').textContent=t?`per bulan · ${rp(t*12)} setahun`:'per bulan · centang yang kamu alami';
+  $('bocorTip').textContent=t?`Tutup separuhnya saja = +${rp(Math.round(t/2/1000)*1000)}/bulan masuk celengan`:'';
+}
+
+// ---------- router ----------
+const VIEWS=['gajian','beli','cek','bocor','atur'];
+function go(v){location.hash=v;show(v)}
+function show(v){
+  if(!S.aktif) v='aktivasi'; else if(!S.welcomed) v='mulai'; else if(!S.setup && v!=='atur' && v!=='mulai') v='atur';
+  if(!VIEWS.includes(v)&&v!=='aktivasi'&&v!=='mulai') v='gajian';
+  document.querySelectorAll('.view').forEach(x=>x.classList.toggle('on',x.id==='v-'+v));
+  VIEWS.forEach(x=>$('n-'+x).classList.toggle('on',x===v));
+  document.querySelector('nav').style.display=S.aktif&&S.setup&&v!=='mulai'?'flex':'none';
+  if(v==='atur')renderAtur(); if(v==='gajian')renderGajian(); if(v==='cek'){renderCekHist();$('cekSub').textContent=W()?'Tengah minggu (misal Rabu). Buka dompet Jatah Hidup-mu (1 tempat itu), ketik saldonya.':'Seminggu sekali. Buka dompet Jatah Hidup-mu (1 tempat itu), ketik saldonya.'} if(v==='bocor')renderLeaks(); if(v==='beli')renderBeli();
+  window.scrollTo(0,0);
+}
+window.addEventListener('hashchange',()=>show(location.hash.replace('#','')));
+try{if(window.self===window.top && /FBAN|FBAV|Instagram|TikTok|musical_ly|Bytedance|Line\/|; wv\)/i.test(navigator.userAgent))$('iab').style.display='block'}catch(e){}
+try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist()}catch(e){}
+hdText();
+show(location.hash.replace('#',''));
+</script>
+</body>
+</html>

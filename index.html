@@ -374,7 +374,7 @@ const fd=d=>`${HARI[d.getDay()]}, ${d.getDate()} ${BLN[d.getMonth()]}`;
 const fds=d=>`${d.getDate()} ${BLN[d.getMonth()]}`;
 const dayOnly=d=>new Date(d.getFullYear(),d.getMonth(),d.getDate());
 const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-const N=v=>{const x=parseFloat(String(v??"").replace(/\./g,"").replace(",","."));return isNaN(x)?0:x};
+const N=v=>{if(typeof v==="number")return isNaN(v)?0:v;const x=parseFloat(String(v??"").replace(/\./g,"").replace(",","."));return isNaN(x)?0:x};
 function fmtIn(el){const d=el.value.replace(/[^0-9]/g,"");el.value=d?Number(d).toLocaleString("id-ID"):"";}
 document.addEventListener("input",e=>{if(e.target.classList&&e.target.classList.contains("rp"))fmtIn(e.target);const g=e.target.dataset&&e.target.dataset.sum;if(g)sumBox(g);});
 function sumVal(p){return ["rek","ew","tun"].reduce((a,k)=>{const el=document.getElementById(p+"_"+k);return a+(el?N(el.value):0)},0)}
@@ -424,7 +424,7 @@ function renderAtur(){
   renderLists();
   $('tgl').value=S.tglSet?S.tgl:''; $('tglMsg').style.display='none'; $('wajibWarn').style.display='none'; S._wajibOk=false; $('jaga').value=S.jaga?rpk(S.jaga):'';
   $('pMakan').value=S.split[0];$('pTrans').value=S.split[1];$('pJajan').value=S.split[2];
-  document.querySelectorAll('#segPct button').forEach(b=>b.classList.toggle('on',N(b.dataset.p)===S.pct));
+  document.querySelectorAll('#segPct button').forEach(b=>b.classList.toggle('on',parseFloat(b.dataset.p)===S.pct));
   $('gajiTetap').value=S.gajiTetap?rpk(S.gajiTetap):''; $('gtMsg').style.display='none';
   $('hari').value=S.hariSet?String(S.hari):''; setJenis(S.jenis,true); setFreq(S.freq,true); chkSplit();
 }
@@ -438,7 +438,7 @@ function totWajib(){$('wajibTot').textContent=rp(sumW());$('wajibMg').textConten
 function totTahun(){$('tahunBln').textContent=rp(tahunPer());$('tahunLbl').textContent=W()?'Dicicil per minggu':'Dicicil per bulan';$('tahunSub').textContent=W()?'total setahun ÷ 52':'total setahun ÷ 12'}
 function addWajib(){S.wajib.push(['',0]);save();renderLists();S._wajibOk=false}
 function addTahun(){S.tahun.push(['',0]);save();renderLists()}
-function setPct(p){S.pct=p;save();document.querySelectorAll('#segPct button').forEach(b=>b.classList.toggle('on',N(b.dataset.p)===p))}
+function setPct(p){S.pct=p;save();document.querySelectorAll('#segPct button').forEach(b=>b.classList.toggle('on',parseFloat(b.dataset.p)===p))}
 function gtLabel(){if($('gtSub'))$('gtSub').textContent=S.jenis==='saku'?'jumlah yang biasa dikirim ke kamu.':'jumlah yang masuk ke rekening (setelah potongan). Lupa? Lihat mutasi rekening bulan lalu.';$('gtLbl').textContent=(S.jenis==='saku'?'🎒 Uang saku per ':'💵 Gaji per ')+(W()?'minggu':'bulan');}
 function hdText(){if($('gtLbl'))gtLabel();$('hdS').textContent=S.jenis==='saku'?'Uang saku cukup sampai kiriman berikutnya':(W()?'Gaji mingguan cukup sampai gajian berikutnya':'Gaji nggak habis sebelum tanggal 20');}
 function setJenis(j,quiet){S.jenis=j;if(!quiet)save();document.querySelectorAll('#segJenis button').forEach(b=>b.classList.toggle('on',b.dataset.j===j));hdText();}

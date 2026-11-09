@@ -83,6 +83,11 @@
   .chk input{width:22px;height:22px;accent-color:var(--teal)}
   .chk .a{margin-left:auto;font-weight:700}
   #iab{display:none}
+  .m3{display:grid;grid-template-columns:1fr 150px;gap:6px 8px;align-items:center}
+  .m3 .k{font-size:14px}
+  .m3tot{display:flex;justify-content:space-between;align-items:center;background:var(--good);color:var(--goodi);border-radius:10px;padding:8px 12px;margin-top:8px;font-weight:800}
+  .warnbox{background:var(--warn);color:var(--warni);border-radius:10px;padding:8px 12px;font-size:13px;font-weight:700;margin:6px 0 4px;line-height:1.4}
+  .errmsg{color:#991B1B;font-weight:700;font-size:13px;margin-top:6px;display:none}
 </style>
 </head>
 <body>
@@ -145,14 +150,15 @@
     </div>
     <div class="in2" id="tglWrap" style="margin-top:10px;grid-template-columns:1fr 110px">
       <div><div class="n" style="padding-top:12px">Tanggal masuk tiap bulan</div><div class="sub">1 sampai 31</div></div>
-      <input type="number" id="tgl" min="1" max="31" value="25" inputmode="numeric">
+      <input type="number" id="tgl" min="1" max="31" placeholder="misal 25" inputmode="numeric">
     </div>
     <div class="in2" id="hariWrap" style="margin-top:10px;grid-template-columns:1fr 150px;display:none">
       <div><div class="n" style="padding-top:12px">Hari masuk tiap minggu</div><div class="sub">hari kamu terima uang</div></div>
-      <select id="hari" class="sm"><option value="1">Senin</option><option value="2">Selasa</option><option value="3">Rabu</option><option value="4">Kamis</option><option value="5">Jumat</option><option value="6" selected>Sabtu</option><option value="0">Minggu</option></select>
+      <select id="hari" class="sm"><option value="">— pilih —</option><option value="1">Senin</option><option value="2">Selasa</option><option value="3">Rabu</option><option value="4">Kamis</option><option value="5">Jumat</option><option value="6">Sabtu</option><option value="0">Minggu</option></select>
     </div>
+    <div class="errmsg" id="tglMsg">Isi dulu kapan uangmu masuk ya.</div>
     <div style="margin-top:10px">
-      <div class="n" id="gtLbl">💵 Gaji per bulan</div><div class="sub" style="margin-bottom:6px">yang biasa kamu terima bersih (setelah potongan)</div>
+      <div class="n" id="gtLbl">💵 Gaji per bulan</div><div class="sub" id="gtSub" style="margin-bottom:6px">jumlah yang masuk ke rekening (setelah potongan). Lupa? Lihat mutasi rekening bulan lalu.</div>
       <input type="text" id="gajiTetap" class="rp" inputmode="numeric" placeholder="misal: 3.100.000">
       <div class="sub" id="gtMsg" style="color:#991B1B;font-weight:700;display:none;margin-top:6px">Isi dulu angka ini ya, ini dasar semua hitungan.</div>
     </div>
@@ -160,15 +166,18 @@
 
   <div class="card">
     <div class="lbl">2 · Wajib bayar tiap bulan</div>
-    <div class="sub" style="margin-bottom:10px">Kos, kuota, cicilan HP, paylater, kirim ortu… yang pasti keluar tiap bulan.</div>
+    <div class="sub" style="margin-bottom:6px">Kos, kuota, cicilan HP, paylater, kirim ortu… yang pasti keluar tiap bulan.</div>
+    <div class="warnbox">❌ Jangan masukkan <u>makan, bensin, jajan</u>. Itu sudah diurus Jatah Harian.</div>
+    <div class="sub" style="margin-bottom:10px">Paylater/cicilan berubah-ubah? Isi tagihan bulan ini atau kira-kira rata-ratanya. Kosongkan yang nggak ada.</div>
     <div id="wajibList"></div>
+    <div class="warnbox" id="wajibWarn" style="display:none"></div>
     <button class="ghost" onclick="addWajib()">+ tambah baris</button>
     <div class="row"><div class="n"><b>Total wajib bulanan</b><div class="sub" id="wajibMg"></div></div><div class="v" id="wajibTot">Rp0</div></div>
   </div>
 
   <div class="card">
     <div class="lbl">3 · Pengeluaran setahun sekali <span class="muted" style="text-transform:none;font-weight:400">(boleh dikosongkan)</span></div>
-    <div class="sub" style="margin-bottom:10px">Biang kerok tanggal tua. Dicicil otomatis tiap bulan supaya pas waktunya uangnya sudah ada.</div>
+    <div class="sub" style="margin-bottom:10px">Biang kerok tanggal tua. Dicicil otomatis tiap bulan supaya pas waktunya uangnya sudah ada. <b>Kira-kira saja</b>, boleh dikosongkan, bisa diubah kapan saja.</div>
     <div id="tahunList"></div>
     <button class="ghost" onclick="addTahun()">+ tambah baris</button>
     <div class="row"><div class="n"><b id="tahunLbl">Dicicil per bulan</b><div class="sub" id="tahunSub">total setahun ÷ 12</div></div><div class="v" id="tahunBln">Rp0</div></div>
@@ -285,8 +294,15 @@
 <section id="v-cek" class="view">
   <div class="card">
     <div class="lbl">Cek saldo · 1 menit</div>
-    <div class="sub" id="cekSub" style="margin-bottom:10px">Seminggu sekali. Buka dompet Jatah Hidup-mu (1 tempat itu), ketik saldonya.</div>
-    <input type="text" id="saldo" placeholder="Saldo sekarang (Rp)" inputmode="numeric" class="rp">
+    <div class="sub" id="cekSub" style="margin-bottom:8px">Seminggu sekali.</div>
+    <div class="sub" style="margin-bottom:8px">Isi uang buat hidup yang kamu pegang sekarang, sama seperti waktu mulai. <b>Tabungan & uang tagihan yang belum dibayar jangan dihitung.</b></div>
+    <div class="m3">
+      <div class="k">🏦 Rekening harian</div><input type="text" id="c_rek" class="rp sm" data-sum="c" inputmode="numeric" placeholder="0">
+      <div class="k">📱 E-wallet <span class="muted" style="font-size:11px">(DANA, GoPay, OVO…)</span></div><input type="text" id="c_ew" class="rp sm" data-sum="c" inputmode="numeric" placeholder="0">
+      <div class="k">💵 Uang tunai</div><input type="text" id="c_tun" class="rp sm" data-sum="c" inputmode="numeric" placeholder="0">
+    </div>
+    <div class="m3tot"><span>Total</span><span id="c_tot">Rp0</span></div>
+    <div class="errmsg" id="c_msg">Isi minimal salah satu ya.</div>
     <button class="btn2" style="margin-top:10px" onclick="cekSaldo()">Cek sekarang</button>
   </div>
   <div id="cekHasil"></div>
@@ -316,8 +332,14 @@
   <div class="sheet" style="max-height:90vh;overflow:auto">
     <h3>🚀 Mulai dari hari ini</h3>
     <div class="n"><b>💳 Uang buat hidup sampai gajian</b></div>
-    <div class="sub" style="margin-bottom:6px">Saldo rekening harian + e-wallet + tunai yang biasa kamu pakai. <b>Tabungan jangan dihitung.</b></div>
-    <input type="text" id="sisaUang" class="rp" placeholder="Rp" inputmode="numeric">
+    <div class="sub" style="margin-bottom:8px">Isi yang ada saja, kosongkan yang nggak punya. <b>Tabungan jangan dihitung.</b></div>
+    <div class="m3">
+      <div class="k">🏦 Rekening harian</div><input type="text" id="a_rek" class="rp sm" data-sum="a" inputmode="numeric" placeholder="0">
+      <div class="k">📱 E-wallet <span class="muted" style="font-size:11px">(DANA, GoPay, OVO…)</span></div><input type="text" id="a_ew" class="rp sm" data-sum="a" inputmode="numeric" placeholder="0">
+      <div class="k">💵 Uang tunai</div><input type="text" id="a_tun" class="rp sm" data-sum="a" inputmode="numeric" placeholder="0">
+    </div>
+    <div class="m3tot"><span>Total</span><span id="a_tot">Rp0</span></div>
+    <div class="errmsg" id="a_msg">Isi minimal salah satu ya.</div>
     <div class="n" style="margin-top:12px"><b>🐷 Tabungan yang sudah ada</b> <span class="muted">(opsional)</span></div>
     <div class="sub" style="margin-bottom:6px">Dikunci, nggak ikut dihitung jatah. Jangan diutak-atik ya.</div>
     <input type="text" id="tabAda" class="rp sm" placeholder="0" inputmode="numeric">
@@ -354,7 +376,10 @@ const dayOnly=d=>new Date(d.getFullYear(),d.getMonth(),d.getDate());
 const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 const N=v=>{const x=parseFloat(String(v??"").replace(/\./g,"").replace(",","."));return isNaN(x)?0:x};
 function fmtIn(el){const d=el.value.replace(/[^0-9]/g,"");el.value=d?Number(d).toLocaleString("id-ID"):"";}
-document.addEventListener("input",e=>{if(e.target.classList&&e.target.classList.contains("rp"))fmtIn(e.target)});
+document.addEventListener("input",e=>{if(e.target.classList&&e.target.classList.contains("rp"))fmtIn(e.target);const g=e.target.dataset&&e.target.dataset.sum;if(g)sumBox(g);});
+function sumVal(p){return ["rek","ew","tun"].reduce((a,k)=>{const el=document.getElementById(p+"_"+k);return a+(el?N(el.value):0)},0)}
+function sumBox(p){const t=document.getElementById(p+"_tot");if(t)t.textContent="Rp"+Math.round(sumVal(p)).toLocaleString("id-ID")}
+function clearBox(p){["rek","ew","tun"].forEach(k=>{const el=document.getElementById(p+"_"+k);if(el)el.value=""});sumBox(p)}
 const $=id=>document.getElementById(id);
 function load(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return {}}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
@@ -364,7 +389,7 @@ const LEAKS=[["🛒 Checkout Shopee / TikTok Live yang nggak direncanakan",15000
 let S=load();
 S.wajib=S.wajib||[["Kos / kontrakan",0],["Cicilan HP / paylater",0],["Kirim orang tua",0],["Kuota & pulsa",0]];
 S.tahun=S.tahun||[["Lebaran / mudik",0],["Pajak motor (STNK)",0],["Kondangan & kado",0]];
-S.pct=S.pct||0.05; S.welcomed=S.welcomed||false; S.jenis=S.jenis||'gaji'; S.freq=S.freq||'bulan'; if(S.hari===undefined)S.hari=6; S.tgl=S.tgl||25; S.jaga=S.jaga||0;
+S.pct=S.pct||0.05; S.welcomed=S.welcomed||false; S.jenis=S.jenis||'gaji'; S.freq=S.freq||'bulan'; if(S.hari===undefined)S.hari=6; S.tgl=S.tgl||25; S.jaga=S.jaga||0; if(S.setup&&S.tglSet===undefined){S.tglSet=true;S.hariSet=true;}
 S.split=S.split||[60,25,15]; S.leaks=S.leaks||LEAKS.map(l=>({on:false,amt:l[1]}));
 S.cek=S.cek||[]; S.streak=S.streak||0; S.beli=S.beli||[]; S.tunda=S.tunda||[]; S.selamat=S.selamat||0; S.selamatN=S.selamatN||0;
 
@@ -387,18 +412,21 @@ function aktivasi(){
 
 // ---------- ATUR ----------
 function rowInput(list,i,name,amt,fn,ph){
-  return `<div class="addrow"><input type="text" class="sm" value="${name.replace(/"/g,'&quot;')}" placeholder="nama" oninput="S.${list}[${i}][0]=this.value;save()"><input type="text" class="sm rp" value="${amt?rpk(amt):''}" placeholder="${ph||'Rp'}" inputmode="numeric" oninput="S.${list}[${i}][1]=N(this.value);save();${fn}()"><button class="del" onclick="S.${list}.splice(${i},1);save();renderAtur()">✕</button></div>`;
+  return `<div class="addrow"><input type="text" class="sm" value="${name.replace(/"/g,'&quot;')}" placeholder="nama" oninput="S.${list}[${i}][0]=this.value;save()"><input type="text" class="sm rp" value="${amt?rpk(amt):''}" placeholder="${ph||'Rp'}" inputmode="numeric" oninput="S.${list}[${i}][1]=N(this.value);save();${fn}()"><button class="del" onclick="S.${list}.splice(${i},1);save();renderLists()">✕</button></div>`;
 }
-function renderAtur(){
+function renderLists(){
   if(!S.wajib.length)S.wajib.push(['',0]); if(!S.tahun.length)S.tahun.push(['',0]);
   $('wajibList').innerHTML=S.wajib.map((w,i)=>rowInput('wajib',i,w[0],w[1],'totWajib','Rp / bulan')).join('');
   $('tahunList').innerHTML=S.tahun.map((w,i)=>rowInput('tahun',i,w[0],w[1],'totTahun','Rp / tahun')).join('');
   totWajib(); totTahun();
-  $('tgl').value=S.tgl; $('jaga').value=S.jaga?rpk(S.jaga):'';
+}
+function renderAtur(){
+  renderLists();
+  $('tgl').value=S.tglSet?S.tgl:''; $('tglMsg').style.display='none'; $('wajibWarn').style.display='none'; S._wajibOk=false; $('jaga').value=S.jaga?rpk(S.jaga):'';
   $('pMakan').value=S.split[0];$('pTrans').value=S.split[1];$('pJajan').value=S.split[2];
   document.querySelectorAll('#segPct button').forEach(b=>b.classList.toggle('on',N(b.dataset.p)===S.pct));
   $('gajiTetap').value=S.gajiTetap?rpk(S.gajiTetap):''; $('gtMsg').style.display='none';
-  $('hari').value=String(S.hari); setJenis(S.jenis,true); setFreq(S.freq,true); chkSplit();
+  $('hari').value=S.hariSet?String(S.hari):''; setJenis(S.jenis,true); setFreq(S.freq,true); chkSplit();
 }
 const sumW=()=>S.wajib.reduce((a,w)=>a+N(w[1]),0);
 const sumT=()=>S.tahun.reduce((a,w)=>a+N(w[1]),0);
@@ -408,10 +436,10 @@ const wajibPer=()=>W()?Math.round(sumW()*12/52/1000)*1000:sumW();
 const tahunPer=()=>W()?Math.ceil(sumT()/52/1000)*1000:tahunBln();
 function totWajib(){$('wajibTot').textContent=rp(sumW());$('wajibMg').textContent=W()?`≈ ${rp(wajibPer())} disisihkan per minggu`:''}
 function totTahun(){$('tahunBln').textContent=rp(tahunPer());$('tahunLbl').textContent=W()?'Dicicil per minggu':'Dicicil per bulan';$('tahunSub').textContent=W()?'total setahun ÷ 52':'total setahun ÷ 12'}
-function addWajib(){S.wajib.push(['',0]);save();renderAtur()}
-function addTahun(){S.tahun.push(['',0]);save();renderAtur()}
+function addWajib(){S.wajib.push(['',0]);save();renderLists();S._wajibOk=false}
+function addTahun(){S.tahun.push(['',0]);save();renderLists()}
 function setPct(p){S.pct=p;save();document.querySelectorAll('#segPct button').forEach(b=>b.classList.toggle('on',N(b.dataset.p)===p))}
-function gtLabel(){$('gtLbl').textContent=(S.jenis==='saku'?'🎒 Uang saku per ':'💵 Gaji per ')+(W()?'minggu':'bulan');}
+function gtLabel(){if($('gtSub'))$('gtSub').textContent=S.jenis==='saku'?'jumlah yang biasa dikirim ke kamu.':'jumlah yang masuk ke rekening (setelah potongan). Lupa? Lihat mutasi rekening bulan lalu.';$('gtLbl').textContent=(S.jenis==='saku'?'🎒 Uang saku per ':'💵 Gaji per ')+(W()?'minggu':'bulan');}
 function hdText(){if($('gtLbl'))gtLabel();$('hdS').textContent=S.jenis==='saku'?'Uang saku cukup sampai kiriman berikutnya':(W()?'Gaji mingguan cukup sampai gajian berikutnya':'Gaji nggak habis sebelum tanggal 20');}
 function setJenis(j,quiet){S.jenis=j;if(!quiet)save();document.querySelectorAll('#segJenis button').forEach(b=>b.classList.toggle('on',b.dataset.j===j));hdText();}
 function setFreq(f,quiet){S.freq=f;if(!quiet)save();document.querySelectorAll('#segFreq button').forEach(b=>b.classList.toggle('on',b.dataset.f===f));
@@ -419,11 +447,16 @@ function setFreq(f,quiet){S.freq=f;if(!quiet)save();document.querySelectorAll('#
 ['pMakan','pTrans','pJajan'].forEach(id=>$(id).addEventListener('input',chkSplit));
 function chkSplit(){const t=N($('pMakan').value)+N($('pTrans').value)+N($('pJajan').value);$('pChk').innerHTML=t===100?'<span class="chip">✓ pas 100%</span>':`<b style="color:#991B1B">Total ${t}% — harus 100%</b>`;return t===100}
 function simpanAtur(){
+  const tv=Math.round(N($('tgl').value)), hv=$('hari').value;
+  if(W()?hv==='':!(tv>=1&&tv<=31)){$('tglMsg').style.display='block';window.scrollTo(0,0);(W()?$('hari'):$('tgl')).focus();return}
+  $('tglMsg').style.display='none';
   const gt=N($('gajiTetap').value); if(gt<=0){$('gtMsg').style.display='block';$('gajiTetap').focus();window.scrollTo(0,0);return}
+  const bad=S.wajib.filter(w=>N(w[1])>0&&/makan|maem|bensin|bbm|pertalite|pertamax|solar|jajan|rokok|kopi|ngopi|belanja dapur|sembako/i.test(w[0]||'')).map(w=>w[0]);
+  if(bad.length&&!S._wajibOk){const b=$('wajibWarn');b.innerHTML=`🤔 <b>${bad.map(esc).join(', ')}</b> sudah dihitung di Jatah Harian, jadi kalau dimasukkan sini bakal terhitung dua kali. Hapus barisnya. Kalau memang tagihan tetap (misal katering bulanan), tekan Simpan sekali lagi.`;b.style.display='block';b.scrollIntoView&&b.scrollIntoView();S._wajibOk=true;return}
   if(!chkSplit()){const d=document.querySelector('details.adv');if(d)d.open=true;window.scrollTo(0,document.body.scrollHeight);return}
   S.gajiTetap=gt;
-  S.tgl=Math.min(31,Math.max(1,Math.round(N($('tgl').value))||25));
-  S.hari=parseInt($('hari').value,10); S.jaga=N($('jaga').value); S.split=[N($('pMakan').value),N($('pTrans').value),N($('pJajan').value)];
+  if(W()){S.hari=parseInt(hv,10);S.hariSet=true;} else {S.tgl=tv;S.tglSet=true;}
+  S.jaga=N($('jaga').value); S.split=[N($('pMakan').value),N($('pTrans').value),N($('pJajan').value)];
   S.wajib=S.wajib.filter(w=>N(w[1])>0); S.tahun=S.tahun.filter(w=>N(w[1])>0);
   S.setup=true; save(); go('gajian'); if(!S.periode) openAwal();
 }
@@ -500,10 +533,10 @@ function openGajian(){
 }
 function closeG(){$('ovG').classList.remove('on')}
 function openAwal(){
-  $('sisaUang').value=''; $('tabAda').value=S.jaga?rpk(S.jaga):'';
+  clearBox('a'); $('a_msg').style.display='none'; $('tabAda').value=S.jaga?rpk(S.jaga):'';
   const items=S.wajib.filter(w=>N(w[1])>0);
   $('unpaidBox').innerHTML=items.length?`<div class="lbl">Mana yang BELUM dibayar sebelum ${S.jenis==='saku'?'kiriman':'gajian'} berikutnya?</div><div class="sub" style="margin-bottom:4px">Centang yang belum. Yang sudah lunas biarkan kosong.</div>`+items.map((w,i)=>`<label class="chk"><input type="checkbox" data-amt="${N(w[1])}"><span>${esc(w[0])||'Tagihan'}</span><span class="a">${rp(w[1])}</span></label>`).join(''):'';
-  $('ovA').classList.add('on'); setTimeout(()=>$('sisaUang').focus(),50);
+  $('ovA').classList.add('on'); setTimeout(()=>$('a_rek').focus(),50);
 }
 function closeA(){$('ovA').classList.remove('on')}
 function cadanganTeks(){
@@ -525,7 +558,7 @@ function pulihkan(tid,mid){
 function pakaiJaga(){const a=N($('pakaiAmt').value);if(a<=0){$('pakaiAmt').focus();return}
   S.jaga=Math.max(0,S.jaga-a);save();$('pakaiAmt').value='';$('pakaiBox').style.display='none';$('pakaiBtn').style.display='block';renderGajian();}
 function simpanAwal(){
-  const sisa=N($('sisaUang').value); if(sisa<=0){$('sisaUang').focus();return}
+  const sisa=sumVal('a'); if(sisa<=0){$('a_msg').style.display='block';$('a_rek').focus();return}
   let unpaid=0; document.querySelectorAll('#unpaidBox input:checked').forEach(c=>unpaid+=N(c.dataset.amt));
   S.jaga=N($('tabAda').value);
   S.periode={awal:true,sisa,unpaid,start:iso(dayOnly(new Date()))}; S.cek=[]; S.beli=[];
@@ -579,9 +612,10 @@ function renderGajian(){
 
 // ---------- CEK SALDO ----------
 function cekSaldo(){
-  const C=calc(); const s=N($('saldo').value);
+  const C=calc(); const s=sumVal('c');
   if(!C){$('cekHasil').innerHTML='<div class="status grey">Isi dulu gajianmu di tab GAJIAN ya.</div>';return}
-  if(s<=0){$('saldo').focus();return}
+  if(s<=0){$('c_msg').style.display='block';$('c_rek').focus();return}
+  $('c_msg').style.display='none';
   const today=dayOnly(new Date());
   const lewat=Math.max(0,Math.min(C.days,Math.round((today-C.start)/864e5)));
   const sisa=Math.max(1,C.days-lewat);
@@ -592,7 +626,7 @@ function cekSaldo(){
   else if(s>=0.85*ideal){cls='warn';txt=`🟡 REM DIKIT. Ideal ${rp(ideal)}, kamu ${rp(s)}. Masih bisa diselamatkan.`}
   else{cls='bad';txt=`🔴 BAHAYA. Ideal ${rp(ideal)}, kamu ${rp(s)}. Pakai jatah baru di bawah ini.`}
   $('cekHasil').innerHTML=`<div class="status ${cls}">${txt}</div><div class="hero"><div class="t">⭐ JATAH HARIAN MULAI HARI INI</div><div class="big">${rp(baru)}</div><div class="d">${sisa} hari lagi sampai ${S.jenis==='saku'?'kiriman':'gajian'}</div></div>`;
-  S.cek.push({t:iso(today),ts:Date.now(),s,ideal,baru}); if(S.cek.length>8)S.cek.shift(); save(); renderCekHist(); $('saldo').value='';
+  S.cek.push({t:iso(today),ts:Date.now(),s,ideal,baru}); if(S.cek.length>8)S.cek.shift(); save(); renderCekHist(); clearBox('c');
 }
 function renderCekHist(){
   const h=$('cekHist'),card=$('cekHistCard'); if(!S.cek.length){card.style.display='none';return}
